@@ -4,6 +4,7 @@ import random
 import numpy
 import matplotlib.pyplot as plt
 import pickle
+import heapq
 
 from outlier_cleaner import outlierCleaner
 
@@ -28,7 +29,11 @@ ages_train, ages_test, net_worths_train, net_worths_test = train_test_split(ages
 
 
 
-
+from sklearn import linear_model
+reg =  linear_model.LinearRegression()
+reg.fit(ages_train,net_worths_train)
+print reg.coef_[0]
+print reg.score(ages_test,net_worths_test)
 
 
 
@@ -48,6 +53,12 @@ plt.show()
 cleaned_data = []
 try:
     predictions = reg.predict(ages_train)
+    #print predictions
+    items  = len(predictions)
+    res_err = [predictions[item]-net_worths[item] for item in range(items)]
+    print 'residuals:'
+    residuals = numpy.array(res_err)
+    print heapq.nlargest(10,residuals)
     cleaned_data = outlierCleaner( predictions, ages_train, net_worths_train )
 except NameError:
     print "your regression object doesn't exist, or isn't name reg"
@@ -61,6 +72,8 @@ except NameError:
 
 ### only run this code if cleaned_data is returning data
 if len(cleaned_data) > 0:
+    #print 'passes here '
+    #print cleaned_data
     ages, net_worths, errors = zip(*cleaned_data)
     ages       = numpy.reshape( numpy.array(ages), (len(ages), 1))
     net_worths = numpy.reshape( numpy.array(net_worths), (len(net_worths), 1))
@@ -68,6 +81,7 @@ if len(cleaned_data) > 0:
     ### refit your cleaned data!
     try:
         reg.fit(ages, net_worths)
+        print reg.coef_[0], reg.score(ages,net_worths)
         plt.plot(ages, reg.predict(ages), color="blue")
     except NameError:
         print "you don't seem to have regression imported/created,"

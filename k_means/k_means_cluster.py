@@ -48,22 +48,53 @@ data_dict.pop("TOTAL", 0)
 ### can be any key in the person-level dictionary (salary, director_fees, etc.) 
 feature_1 = "salary"
 feature_2 = "exercised_stock_options"
+feature_3 = "total_payments"
 poi  = "poi"
 features_list = [poi, feature_1, feature_2]
 data = featureFormat(data_dict, features_list )
 poi, finance_features = targetFeatureSplit( data )
+stocks=[]
+for i in range(len(data)):
+    if data[i][1]>1:
+        stocks.append(data[i][1])
+print min(stocks)
 
+salary = []
+stocks = []
+payments = []
+for f1,f2 in finance_features:
+    if f1 >0:
+        salary.append(f1)
+    if f2>0:
+        stocks.append(f2)
+    #if f3>0:
+        #payments.append(f3)
+#print salary, stocks
 
+def minmaxscale(val,array):
+    mn = float(min(array))
+    print 'The min is', mn
+    mx = float(max(array))
+    print 'The max is', mx
+    delta = mx-mn
+    scaledv = (val-mn)/delta
+    return scaledv
+print 'The scaled value is',minmaxscale(200000.0,salary)
+print 'The scaled stock is', minmaxscale(1000000.0,stocks)
 ### in the "clustering with 3 features" part of the mini-project,
 ### you'll want to change this line to 
 ### for f1, f2, _ in finance_features:
 ### (as it's currently written, the line below assumes 2 features)
 for f1, f2 in finance_features:
-    plt.scatter( f1, f2 )
+    plt.scatter( f1,f2)
 plt.show()
 
 ### cluster here; create predictions of the cluster labels
 ### for the data and store them to a list called pred
+from sklearn.cluster import KMeans
+kmean = KMeans(n_clusters=2)
+pred = kmean.fit_predict(data)
+
 
 
 
